@@ -22,7 +22,11 @@ class ETL:
 
             else:
                 food_data, top_nutrients = FDCAPI.get_food_data(food_name)
-                if food_data:
+                
+                if isinstance(food_data, str) and food_data == 'No food found':
+                    print(f"No food data found for '{new_food_name}'. Skipping saving to the database.")
+                
+                elif food_data and food_data.get('foods') and len(food_data['foods']) > 0:
                     # Extract relevant data from food_data
                     food_id = None  # Placeholder for auto-generated ID
                     name = new_food_name
@@ -32,12 +36,17 @@ class ETL:
                     food = Food(food_id, name)
                     food_id = food.save_to_db()  # Get auto-generated food ID from database
 
-                    # Save top nutrients to FoodNutrient table
-                    for nutrient in top_nutrients:
-                        nutrient_name = nutrient['nutrient_name']
-                        amount = nutrient['amount']
-                        unit_name = nutrient['unit_name']
-                        FoodNutrient.save_to_db(food_id, nutrient_name, amount, unit_name)
+                    # Save top nutrients to FoodNutrient table if top_nutrients is not None
+                    if top_nutrients is not None:
+                        for nutrient in top_nutrients:
+                            nutrient_name = nutrient['nutrient_name']
+                            amount = nutrient['amount']
+                            unit_name = nutrient['unit_name']
+                            FoodNutrient.save_to_db(food_id, nutrient_name, amount, unit_name)
+                    else:
+                        print(f"No nutrient data found for food '{new_food_name}'")
+                else:
+                    print(f"No food data found for '{new_food_name}'")
 
 if __name__ == "__main__":
     file_path = 'data/input.csv'
