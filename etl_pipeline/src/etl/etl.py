@@ -1,4 +1,4 @@
-from fdc_api import FDCAPI
+from src.etl.fdc_api import FDCAPI
 from models.food import Food
 from models.food_nutrient import FoodNutrient
 from db.db_connector import DBConnector
